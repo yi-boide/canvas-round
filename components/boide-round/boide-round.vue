@@ -139,33 +139,42 @@ export default {
 			}
 			
 			const circleb = (this.circle/2)
+			const overOneRound = this.circleNum >= 1
 			let arcVal = val
-			if (this.circleNum>=1) {
+			let orign = [centerPoint.x, centerPoint.y]
+			if (overOneRound) {
 				arcVal = 300
+				ctx.save()
+				ctx.translate(centerPoint.x, centerPoint.y)
+				ctx.rotate(val / this.circle * 2 * Math.PI)
+				orign = [0, 0]
 			}
 			// 绘制渐变
 			ctx.beginPath();
 			// 设置圆的宽度
 			ctx.setLineWidth(border + 4);
 			ctx.setLineCap('round')
-			let b = ctx.createLinearGradient(0,0,0,centerPoint.y+radius);  //创建渐变对象  渐变开始点和渐变结束点
+			let b = ctx.createLinearGradient(0,0,0,orign[1]+radius);  //创建渐变对象  渐变开始点和渐变结束点
 		 	b.addColorStop(0, colorSatrt); //渐变开始值
 		 	b.addColorStop(1, this.centerColor); //渐变结束值
 		 	ctx.strokeStyle = b;     //使用渐变对象作为圆环的颜色
-			ctx.arc(centerPoint.x, centerPoint.y, radius, 1.5*Math.PI, (1.5 + arcVal / circleb) * Math.PI, false);
+			ctx.arc(orign[0], orign[1], radius, 1.5*Math.PI, (1.5 + arcVal / circleb) * Math.PI, false);
 			ctx.stroke();
 			ctx.closePath();
 			if (arcVal > circleb) {
 				ctx.beginPath();
 				ctx.setLineCap('round')
 				ctx.setLineWidth(border + 4);
-				let g = ctx.createLinearGradient(0,centerPoint.y+radius,0,0);
+				let g = ctx.createLinearGradient(0,orign[1]+radius,0,0);
 			 	g.addColorStop(0, this.centerColor);
 			 	g.addColorStop(1, colorEnd);
 			 	ctx.strokeStyle = g;
-				ctx.arc(centerPoint.x, centerPoint.y, radius, 0.5*Math.PI, (0.5+(arcVal - circleb) / circleb) * Math.PI, false);
+				ctx.arc(orign[0], orign[1], radius, 0.5*Math.PI, (0.5+(arcVal - circleb) / circleb) * Math.PI, false);
 				ctx.stroke();
 				ctx.closePath();
+			}
+			if (overOneRound) {
+				ctx.restore()
 			}
 
 			//画控制点
@@ -241,18 +250,6 @@ export default {
 			}
 			return gradientColorArr;
 		},
-		getPointOnCircle(x, y, r, angle) {
-		  let lth = 360/angle;
-		  let startangle = parseInt(Math.random() * angle);
-		  let list = []
-		  for(let i = 0; i<lth; i++) {
-				list.push({
-					x: x + (r * Math.cos((angle * i + startangle)  * Math.PI / 180)),
-					y: y + (r * Math.sin((angle * i + startangle)  * Math.PI / 180))
-				})
-		  }
-		  return list
-		},
 		touchStart(e) {
 			let touches = e.mp.changedTouches[0] || e.changedTouches[0];
 			this.oldTouches = {
@@ -278,7 +275,7 @@ export default {
 				}
 				if (numVal<this.circle/30 && this.valData>this.circle-this.circle/30) {
 					this.circleNum += 1
-				} else if (this.valData<this.circle/30 && numVal>this.circle-this.circle/30) {
+				} else if ((numVal - this.valData) >= (this.circle/2)) {
 					this.circleNum -= 1
 				}
 				this.valData = numVal
