@@ -1,5 +1,16 @@
 <template>
 	<view class="progress_box" :style="{ 'background-color': pageBg }">
+		<!-- #ifdef MP-ALIPAY -->
+		<canvas
+			:id="id"
+			:style="{ width: width + 'px', height: width / 2 + 'px' }"
+			disable-scroll="true"
+			@touchstart="touchStart"
+			@touchmove="touchMove"
+			@touchend="touchEnd"
+		></canvas>
+		<!-- #endif -->
+		<!-- #ifndef MP-ALIPAY -->
 		<canvas
 			:canvas-id="id"
 			:style="{ width: width + 'px', height: width / 2 + 'px' }"
@@ -8,6 +19,7 @@
 			@touchmove="touchMove"
 			@touchend="touchEnd"
 		></canvas>
+		<!-- #endif -->
 		<slot></slot>
 	</view>
 </template>

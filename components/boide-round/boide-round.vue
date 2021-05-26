@@ -1,5 +1,16 @@
 <template>
 	<view class="progress_box" :style="{ 'background-color': pageBg }">
+		<!-- #ifdef MP-ALIPAY -->
+		<canvas
+			:id="id"
+			:style="{ width: width + 'px', height: width + 'px' }"
+			:disable-scroll="isMove"
+			@touchstart="touchStart"
+			@touchmove="touchMove"
+			@touchend="touchEnd"
+		></canvas>
+		<!-- #endif -->
+		<!-- #ifndef MP-ALIPAY -->
 		<canvas
 			:canvas-id="id"
 			:style="{ width: width + 'px', height: width + 'px' }"
@@ -8,6 +19,7 @@
 			@touchmove="touchMove"
 			@touchend="touchEnd"
 		></canvas>
+		<!-- #endif -->
 		<view class="p_ps_show" v-if="!$slots.default">
 			<view class="ps_text plan" :style="{'color': colorEnd}">
 				<text>{{circleTotal}}</text>
@@ -94,9 +106,9 @@ export default {
 	mounted() {
 		this.circleNum = Math.floor(this.val / this.circle)
 		this.valData = this.val % this.circle
-		this.setDrawCircle(this.valData)
 		const gradientList = this.gradient(this.colorSatrt, this.colorEnd, 3)
 		this.centerColor = gradientList ? gradientList[1] : '#ff8cb6'
+		this.setDrawCircle(this.valData)
 	},
 	computed: {
 		circleTotal() {
@@ -220,7 +232,7 @@ export default {
 			ctx.lineTo(5, -2);
 			ctx.stroke()
 			ctx.closePath();
-			
+      ctx.setTransform(1, 0, 0, 1, 0, 0)
 			ctx.draw();
 		},
 		// 获取两个颜色之间渐变的色值
